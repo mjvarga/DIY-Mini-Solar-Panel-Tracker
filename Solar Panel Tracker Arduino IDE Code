@@ -88,7 +88,3 @@ void loop() {
   
   delay(200);  // Smooth movement
 }
-
-
-Now when you point light UP, the servos should actually move UP!
-*/
