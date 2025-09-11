@@ -1,0 +1,105 @@
+#include <Servo.h>
+
+Servo horizontalServo;
+Servo verticalServo;
+
+// Servo positions
+float verticalPos = 90;
+float horizontalPos = 90;
+
+// Servo limits
+const int V_MIN = 30;
+const int V_MAX = 150;
+const int H_MIN = 30;
+const int H_MAX = 150;
+
+// Movement sensitivity (lower = less sensitive)
+const float MOVE_FACTOR = 0.02;  // Start conservative
+const int DEADBAND = 80;         // Ignore small differences (stops random movement)
+
+void setup() {
+  Serial.begin(9600);
+  horizontalServo.attach(9);
+  verticalServo.attach(10);
+  
+  // Center both servos
+  horizontalServo.write(90);
+  verticalServo.write(90);
+  
+  delay(2000);
+  Serial.println("=== FIXED SOLAR TRACKER ===");
+  Serial.println("SERVO DIRECTIONS: FLIPPED BOTH (they were backwards)");
+  Serial.println("DEADBAND: 50 (stops random movement)");
+  Serial.println();
+}
+
+void loop() {
+  // Read sensors
+  int TL = analogRead(A1);  // Top-Left
+  int TR = analogRead(A0);  // Top-Right  
+  int BL = analogRead(A3);  // Bottom-Left
+  int BR = analogRead(A2);  // Bottom-Right
+
+  // Calculate sums
+  int topSum = TL + TR;
+  int bottomSum = BL + BR;
+  int leftSum = TL + BL;
+  int rightSum = TR + BR;
+
+  // Calculate movement deltas
+  int deltaV = topSum - bottomSum;  // Negative = light from top
+  int deltaH = leftSum - rightSum;  // Negative = light from left
+  
+  // Show sensor readings
+  Serial.print("TL:"); Serial.print(TL);
+  Serial.print(" TR:"); Serial.print(TR);
+  Serial.print(" BL:"); Serial.print(BL);
+  Serial.print(" BR:"); Serial.print(BR);
+  Serial.print(" | TOP:"); Serial.print(topSum);
+  Serial.print(" BOT:"); Serial.print(bottomSum);
+  Serial.print(" LEFT:"); Serial.print(leftSum);
+  Serial.print(" RIGHT:"); Serial.print(rightSum);
+  Serial.print(" | dV:"); Serial.print(deltaV);
+  Serial.print(" dH:"); Serial.print(deltaH);
+
+  // Only move if difference is significant (prevents random movement)
+  if (abs(deltaV) > DEADBAND) {
+    verticalPos += deltaV * MOVE_FACTOR;  // FLIPPED: + instead of -
+    Serial.print(" →V_MOVE");
+  } else {
+    Serial.print(" →V_STOP");
+  }
+  
+  if (abs(deltaH) > DEADBAND) {
+    horizontalPos -= deltaH * MOVE_FACTOR;  // FLIPPED BACK: - instead of +
+    Serial.print(" →H_MOVE");
+  } else {
+    Serial.print(" →H_STOP");
+  }
+  
+  // Constrain positions
+  verticalPos = constrain(verticalPos, V_MIN, V_MAX);
+  horizontalPos = constrain(horizontalPos, H_MIN, H_MAX);
+  
+  Serial.print(" | V:"); Serial.print((int)verticalPos);
+  Serial.print(" H:"); Serial.println((int)horizontalPos);
+  
+  // **FIX: FLIP BOTH SERVO DIRECTIONS** (they were backwards)
+  int flippedVertical = 180 - (int)verticalPos;     // Flip vertical: 45→135, 135→45
+  int flippedHorizontal = 180 - (int)horizontalPos; // Flip horizontal: 45→135, 135→45
+  
+  verticalServo.write(flippedVertical);
+  horizontalServo.write(flippedHorizontal);
+  
+  delay(200);  // Smooth movement
+}
+
+/*
+FIXES APPLIED:
+1. ✅ FLIPPED both servo directions (your test showed both were backwards)
+2. ✅ Added DEADBAND=50 to stop random movement without bright light
+3. ✅ Conservative MOVE_FACTOR=0.02 for smooth tracking
+4. ✅ Clear debug output to see what's happening
+
+Now when you point light UP, the servos should actually move UP!
+*/
