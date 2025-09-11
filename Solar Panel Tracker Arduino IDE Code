@@ -27,10 +27,7 @@ void setup() {
   verticalServo.write(90);
   
   delay(2000);
-  Serial.println("=== FIXED SOLAR TRACKER ===");
-  Serial.println("SERVO DIRECTIONS: FLIPPED BOTH (they were backwards)");
-  Serial.println("DEADBAND: 50 (stops random movement)");
-  Serial.println();
+  
 }
 
 void loop() {
@@ -62,7 +59,6 @@ void loop() {
   Serial.print(" | dV:"); Serial.print(deltaV);
   Serial.print(" dH:"); Serial.print(deltaH);
 
-  // Only move if difference is significant (prevents random movement)
   if (abs(deltaV) > DEADBAND) {
     verticalPos += deltaV * MOVE_FACTOR;  // FLIPPED: + instead of -
     Serial.print(" →V_MOVE");
@@ -84,7 +80,6 @@ void loop() {
   Serial.print(" | V:"); Serial.print((int)verticalPos);
   Serial.print(" H:"); Serial.println((int)horizontalPos);
   
-  // **FIX: FLIP BOTH SERVO DIRECTIONS** (they were backwards)
   int flippedVertical = 180 - (int)verticalPos;     // Flip vertical: 45→135, 135→45
   int flippedHorizontal = 180 - (int)horizontalPos; // Flip horizontal: 45→135, 135→45
   
@@ -94,12 +89,6 @@ void loop() {
   delay(200);  // Smooth movement
 }
 
-/*
-FIXES APPLIED:
-1. ✅ FLIPPED both servo directions (your test showed both were backwards)
-2. ✅ Added DEADBAND=50 to stop random movement without bright light
-3. ✅ Conservative MOVE_FACTOR=0.02 for smooth tracking
-4. ✅ Clear debug output to see what's happening
 
 Now when you point light UP, the servos should actually move UP!
 */
