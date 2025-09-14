@@ -11,9 +11,9 @@ Created a custom wiring board to connect sensors, power supply, and servo motors
 # Results
 The tracker successfully followed the sun’s position across different times of day and lighting conditions.
 Demonstrated that an active tracker could significantly increase solar panel exposure compared to a fixed position.
-<img width="408" height="431" alt="image" src="https://github.com/user-attachments/assets/ef802619-880f-4657-9cd1-b03a76b709ba" />
-<img width="486" height="565" alt="image" src="https://github.com/user-attachments/assets/989a9f9b-4dea-4e92-84d5-257d248a29f6" />
 
+
+<img width="408" height="431" alt="image" src="https://github.com/user-attachments/assets/ef802619-880f-4657-9cd1-b03a76b709ba" />
 
 
 
